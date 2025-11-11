@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sistema de Lançamentos</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f0f0f0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Abas */
+.tabs {
+  display: flex;
+  background: #2196F3;
+}
+.tab {
+  padding: 14px 20px;
+  cursor: pointer;
+  color: white;
+  font-weight: bold;
+  user-select: none;
+  border-bottom: 3px solid transparent;
+  transition: background 0.2s;
+}
+.tab:hover { background: #1e88e5; }
+.tab.active {
+  border-bottom: 3px solid #ffeb3b;
+  background: #1976d2;
+}
+.tab-content {
+  flex-grow: 1;
+  padding: 20px;
+  background: white;
+  overflow-y: auto;
+}
+.tab-content:not(.active) { display: none; }
+
+/* Filtro + Botões */
+.filtro-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.filtro-container input[type=text] {
+  width: 250px;
+  padding: 6px 8px;
+  text-transform: uppercase;
+}
+.filtro-container button {
+  padding: 6px 12px;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Botões de ação */
+#btnInserir { background: #4caf50; color: white; }
+#btnSair { background: #f44336; color: white; }
+#btnSalvar { background: #4caf50; color: white; }
+#btnCancelar { background: #f44336; color:white; }
+
+/* Formulário */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+form input[type=text],
+form input[type=number],
+form input[type=date],
+form select {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+/* Indicadores visuais */
+.titulo-aba {
+  font-size: 22px;
+  font-weight: bold;
+  color: #1976d2;
+  margin-bottom: 15px;
+  border-left: 6px solid #2196F3;
+  padding-left: 10px;
+}
+.tab-content.active {
+  background: #fafafa;
+  border-top: 3px solid #2196F3;
+  animation: fadeIn 0.3s ease-in;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Tabela */
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: middle; }
+th { background: #1976d2; color: white; }
+tr:nth-child(even) { background: #f9f9f9; }
+td.actions { text-align: center; }
+td.actions button { background: transparent; border: none; cursor: pointer; font-size: 16px; margin: 0 5px; }
+td.actions button.edit { color: #2196f3; }
+td.actions button.delete { color: #f44336; }
+</style>
+</head>
+<body>
+
+<!-- Abas -->
+<div class="tabs">
+  <div class="tab" data-tab="inserir">Inserir Lançamento</div>
+  <div class="tab active" data-tab="consulta">Consulta</div>
+</div>
+
+<!-- Aba Inserir -->
+<div id="inserir" class="tab-content">
+  <div class="titulo-aba">Inserir Novo Lançamento</div>
+  <div class="filtro-container">
+    <input type="text" id="filtroNomeInserir" placeholder="Filtrar nome no cadastro">
+    <button id="btnSalvar">Salvar</button>
+    <button id="btnCancelar">Cancelar</button>
+  </div>
+  <form id="formLanc">
+    <label for="nomeLanc">Nome</label>
+    <input type="text" id="nomeLanc" autocomplete="off" required />
+
+    <label for="tipoLanc">Tipo</label>
+    <select id="tipoLanc">
+      <option value="">Selecione...</option>
+      <option value="COMPRA">COMPRA</option>
+      <option value="VALE">VALE</option>
+    </select>
+
+    <label for="valorLanc">Valor</label>
+    <input type="number" id="valorLanc" min="0" step="0.01" required />
+
+    <label for="dataLanc">Data</label>
+    <input type="date" id="dataLanc" required />
+  </form>
+</div>
+
+<!-- Aba Consulta -->
+<div id="consulta" class="tab-content active">
+  <div class="titulo-aba">Consulta de Lançamentos</div>
+  <div class="filtro-container">
+    <input type="text" id="filtroLanc" placeholder="Filtrar lançamentos">
+    <button id="btnInserir">Inserir Lançamento</button>
+    <button id="btnSair">Sair</button>
+  </div>
+  <table id="tabelaLanc">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Tipo</th>
+        <th>Valor</th>
+        <th>Data</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<script>
+// === Abas ===
+const tabs = document.querySelectorAll('.tab');
+const tabContents = document.querySelectorAll('.tab-content');
+tabs.forEach(tab => tab.addEventListener('click', () => abrirAba(tab.dataset.tab)));
+
+function abrirAba(nomeAba) {
+  tabs.forEach(t => t.classList.remove('active'));
+  tabContents.forEach(c => c.classList.remove('active'));
+  document.querySelector(`.tab[data-tab="${nomeAba}"]`)?.classList.add('active');
+  document.getElementById(nomeAba)?.classList.add('active');
+  if(nomeAba === 'inserir') inputNome.focus();
+  if(nomeAba === 'consulta') filtroLanc.focus();
+}
+
+// === Dados ===
+let lancamentos = JSON.parse(localStorage.getItem('lancamentos')) || [];
+let registros = JSON.parse(localStorage.getItem('registros')) || []; // nomes do cadastro
+let editando = null;
+
+// Campos
+const inputNome = document.getElementById('nomeLanc');
+const inputTipo = document.getElementById('tipoLanc');
+const inputValor = document.getElementById('valorLanc');
+const inputData = document.getElementById('dataLanc');
+const btnSalvar = document.getElementById('btnSalvar');
+const btnCancelar = document.getElementById('btnCancelar');
+const filtroNomeInserir = document.getElementById('filtroNomeInserir');
+const filtroLanc = document.getElementById('filtroLanc');
+const btnInserir = document.getElementById('btnInserir');
+const btnSair = document.getElementById('btnSair');
+
+// === Funções ===
+function limparFormulario() {
+  inputNome.value = "";
+  inputTipo.value = "";
+  inputValor.value = "";
+  inputData.value = "";
+  editando = null;
+  btnSalvar.textContent = "Salvar";
+  inputNome.focus();
+}
+
+function atualizarTabela(filtro="") {
+  const tbody = document.querySelector("#tabelaLanc tbody");
+  tbody.innerHTML = "";
+  filtro = filtro.toUpperCase();
+
+  const filtrados = lancamentos.filter(l =>
+    l.nome.includes(filtro) ||
+    l.tipo.includes(filtro) ||
+    formatarData(l.data).includes(filtro)
+  ).sort((a,b)=> a.nome.localeCompare(b.nome));
+
+  filtrados.forEach((l, idx) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${l.nome}</td>
+      <td>${l.tipo}</td>
+      <td>R$ ${l.valor}</td>
+      <td>${formatarData(l.data)}</td>
+      <td class="actions">
+        <button class="edit" title="Editar">&#9998;</button>
+        <button class="delete" title="Excluir">&#10060;</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+
+    tr.querySelector('.edit').addEventListener('click', () => {
+      preencherFormulario(l, idx);
+      abrirAba('inserir');
+    });
+    tr.querySelector('.delete').addEventListener('click', () => {
+      if(confirm(`Excluir lançamento de ${l.nome}?`)) {
+        lancamentos.splice(idx, 1);
+        localStorage.setItem('lancamentos', JSON.stringify(lancamentos));
+        atualizarTabela(filtro);
+      }
+    });
+  });
+}
+
+function preencherFormulario(l, idx) {
+  inputNome.value = l.nome;
+  inputTipo.value = l.tipo;
+  inputValor.value = l.valor;
+  inputData.value = l.data;
+  editando = idx;
+  btnSalvar.textContent = "Atualizar";
+  inputNome.focus();
+}
+
+function formatarData(dataStr) {
+  if(!dataStr) return "";
+  const d = new Date(dataStr);
+  const dia = String(d.getDate()).padStart(2,'0');
+  const mes = String(d.getMonth()+1).padStart(2,'0');
+  const ano = d.getFullYear();
+  return `${dia}/${mes}/${ano}`;
+}
+
+// === Filtros ===
+filtroNomeInserir.addEventListener('input', () => filtroNomeInserir.value = filtroNomeInserir.value.toUpperCase());
+filtroLanc.addEventListener('input', () => {
+  filtroLanc.value = filtroLanc.value.toUpperCase();
+  atualizarTabela(filtroLanc.value);
+});
+
+// === Botões ===
+btnSalvar.addEventListener('click', () => {
+  const nome = inputNome.value.trim().toUpperCase();
+  if(!nome) { alert("Nome obrigatório"); inputNome.focus(); return; }
+  if(!registros.some(r => r.nome.toUpperCase() === nome)) { 
+    alert("Nome não encontrado no cadastro"); 
+    inputNome.focus(); 
+    return; 
+  }
+  if(!inputTipo.value) { alert("Selecione o tipo"); inputTipo.focus(); return; }
+  if(!inputValor.value) { alert("Informe o valor"); inputValor.focus(); return; }
+
+  const novo = {
+    nome,
+    tipo: inputTipo.value,
+    valor: parseFloat(inputValor.value).toFixed(2),
+    data: inputData.value
+  };
+
+  if(editando !== null) lancamentos[editando] = novo;
+  else lancamentos.push(novo);
+
+  localStorage.setItem('lancamentos', JSON.stringify(lancamentos));
+  limparFormulario();
+  atualizarTabela();
+  abrirAba('consulta');
+});
+
+btnCancelar.addEventListener('click', () => {
+  limparFormulario();
+  abrirAba('consulta');
+});
+
+btnInserir.addEventListener('click', () => {
+  abrirAba('inserir');
+});
+
+btnSair.addEventListener('click', () => {
+  window.location.href = "menu.html";
+});
+
+// === Inicialização ===
+limparFormulario();
+atualizarTabela();
+abrirAba('consulta');
+</script>
+
+</body>
+</html>
