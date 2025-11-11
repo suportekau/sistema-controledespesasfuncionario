@@ -142,8 +142,19 @@ window.addEventListener('load', () => usuario.focus());
 });
 
 // ===== Enter muda de campo ou envia =====
-usuario.addEventListener('keydown', e => { if(e.key==='Enter'){ e.preventDefault(); senha.focus(); } });
-senha.addEventListener('keydown', e => { if(e.key==='Enter'){ e.preventDefault(); form.requestSubmit(); } });
+usuario.addEventListener('keydown', e => {
+  if(e.key === 'Enter') {
+    e.preventDefault();
+    senha.focus();
+  }
+});
+
+senha.addEventListener('keydown', e => {
+  if(e.key === 'Enter') {
+    e.preventDefault();
+    form.requestSubmit(); // envia o formulário
+  }
+});
 
 // ===== Mostrar / ocultar senha =====
 toggleSenha.addEventListener('click', () => {
@@ -166,37 +177,36 @@ function mostrarMensagem(texto, tipo) {
   }, 2000);
 }
 
-// ===== Login fictício =====
-form.addEventListener('submit', e => {
-  e.preventDefault();
-  if(usuario.value.trim() === "ADMIN" && senha.value.trim() === "1234") {
-    mostrarMensagem("Login correto!", "sucesso");
-    setTimeout(() => { window.location.href = "menu.html"; }, 1000);
-  } else {
-    mostrarMensagem("Usuário ou senha incorretos!", "erro");
-    form.reset();
-    usuario.focus();
-  }
-});
-
-// ===== Login Firebase =====
-import { auth } from "./firebase.js";
-import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
+// ===== Login fictício e Firebase =====
 form.addEventListener('submit', async e => {
   e.preventDefault();
-  const email = usuario.value.trim() + "@empresa.com";
-  const password = senha.value.trim();
 
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
+  const usuarioVal = usuario.value.trim();
+  const senhaVal = senha.value.trim();
+
+  // Login fictício
+  if(usuarioVal === "ADMIN" && senhaVal === "1234") {
     mostrarMensagem("Login correto!", "sucesso");
     setTimeout(() => { window.location.href = "menu.html"; }, 1000);
-  } catch (error) {
-    mostrarMensagem("Usuário ou senha incorretos!", "erro");
-    form.reset();
-    usuario.focus();
+    return;
   }
+
+  // Login Firebase
+  import("./firebase.js").then(({ auth }) => {
+    import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js")
+      .then(({ signInWithEmailAndPassword }) => {
+        signInWithEmailAndPassword(auth, usuarioVal + "@empresa.com", senhaVal)
+          .then(() => {
+            mostrarMensagem("Login correto!", "sucesso");
+            setTimeout(() => { window.location.href = "menu.html"; }, 1000);
+          })
+          .catch(() => {
+            mostrarMensagem("Usuário ou senha incorretos!", "erro");
+            form.reset();
+            usuario.focus();
+          });
+      });
+  });
 });
 </script>
 
