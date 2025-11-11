@@ -1,214 +1,792 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login K-Sistemas</title>
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sistema - Funcionários & Lançamentos (Realtime)</title>
+
 <style>
+/* === CAMPOS MAIORES: SETOR E HORÁRIO === */
+.campo-grande::placeholder {
+  color: #555;
+  font-style: italic;
+}
+
   body {
     font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 10px;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    margin: 0;
-  }
-
-  .login-box {
-    background-color: white;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.3);
-    width: 320px;
-    position: relative;
-  }
-
-  .top-left {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    font-weight: bold;
-    font-size: 10px;
-    color: #333;
-  }
-
-  h2 {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-
-  input {
-    width: 100%;
-    padding: 10px 40px 10px 10px;
-    margin-bottom: 10px;
-    font-size: 16px;
+    min-height: 100vh;
     text-transform: uppercase;
-    border: 1px solid #ccc;
-    border-radius: 4px;
     box-sizing: border-box;
   }
 
-  .senha-container {
-    position: relative;
+  .container {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    text-align: center;
+    width: 100%;
+    max-width: 580px;
+    box-sizing: border-box;
   }
 
-  .toggle-senha {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
-    background: none;
-    border: none;
-    padding: 0;
-    color: #333;
-    font-size: 20px;
-  }
+  h2 { margin-bottom: 20px; font-size: 1.4em; }
 
-  button.entrar {
+  input, select, textarea {
     width: 100%;
     padding: 10px;
-    background-color: #333;
+    margin: 5px 0;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    box-sizing: border-box;
+    text-transform: uppercase;
+  }
+
+  button {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 8px;
+    background-color: #007bff;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  button:hover { background-color: #0056b3; }
+
+  .btn-voltar { background-color: #6c757d; }
+  .btn-voltar:hover { background-color: #565e64; }
+  .hidden { display: none; }
+
+  .lista {
+    text-align: left;
+    margin-top: 10px;
+    max-height: 250px;
+    overflow-y: auto;
+  }
+
+  .item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f1f3f5;
+    padding: 6px 8px;
+    border-radius: 6px;
+    margin: 4px 0;
+    transition: background 0.2s;
+  }
+  .item:hover { background-color: #e0e3e7; }
+
+  .btn-excluir {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #dc3545;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 50%;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 14px;
+    flex-shrink: 0;
+    transition: background .2s, transform .1s;
   }
+  .btn-excluir:hover { background-color: #b02a37; transform: scale(1.1); }
 
-  button.entrar:hover {
-    background-color: #555;
-  }
-
-  .mensagem {
+  /* === LOGIN ESTILO MODERNO === */
+  .login-box {
+    background: #fff;
+    padding: 35px 30px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    width: 100%;
+    max-width: 360px;
     text-align: center;
-    margin-bottom: 10px;
+  }
+
+  .login-box h2 {
+    font-size: 20px;
     font-weight: bold;
-    height: 20px;
-    transition: all 0.3s;
+    margin-bottom: 20px;
+    color: #000;
+    letter-spacing: 1px;
   }
 
-  .erro {
-    color: white;
-    background-color: #f44336;
-    padding: 5px;
-    border-radius: 4px;
+  .login-box input {
+    width: 100%;
+    padding: 12px 14px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+    text-transform: uppercase;
+    transition: border 0.2s;
   }
 
-  .sucesso {
-    color: white;
-    background-color: #4CAF50;
-    padding: 5px;
-    border-radius: 4px;
+  .login-box input:focus {
+    border-color: #007bff;
+    outline: none;
+  }
+
+  .login-box button {
+    width: 100%;
+    padding: 12px;
+    background-color: #007bff;
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background 0.2s;
+  }
+
+  .login-box button:hover {
+    background-color: #0056d8;
   }
 </style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
-<div class="login-box">
-  <div class="top-left">K-Sistemas</div>
-  <h2>Login</h2>
-  <div class="mensagem" id="mensagem"></div>
 
-  <form id="loginForm">
-    <input type="text" id="usuario" placeholder="Usuário" autocomplete="off" required>
-    <div class="senha-container">
-      <input type="password" id="senha" placeholder="Senha" required>
-      <button type="button" class="toggle-senha">
-        <span class="material-icons" id="icone-olho">visibility</span>
-      </button>
-    </div>
-    <button type="submit" class="entrar">Entrar</button>
-  </form>
+  
+<!-- LOGIN -->
+<div class="login-box" id="loginContainer">
+  <h2>LOGIN</h2>
+  <input type="text" id="loginUsuario" placeholder="USUÁRIO" />
+  <input type="password" id="loginSenha" placeholder="SENHA" />
+  <button onclick="fazerLogin()">Entrar</button>
 </div>
 
-<script type="module">
-// ===== Variáveis =====
-const usuario = document.getElementById('usuario');
-const senha = document.getElementById('senha');
-const toggleSenha = document.querySelector('.toggle-senha');
-const iconeOlho = document.getElementById('icone-olho');
-const form = document.getElementById('loginForm');
-const mensagem = document.getElementById('mensagem');
+<!-- MENU PRINCIPAL -->
+<div class="container hidden" id="menu">
+  <h2>Menu Principal</h2>
+  <button onclick="abrirCadastro()">Cadastro</button>
+  <button onclick="abrirLancamento()">Lançamento</button>
+  <button onclick="abrirBackup()">BKP</button>
+  <button onclick="sair()">Sair</button>
+</div>
 
-// ===== Foco automático =====
-window.addEventListener('load', () => usuario.focus());
+<!-- MENU BACKUP -->
+<div class="container hidden" id="menuBackup">
+  <h2>Backup de Dados</h2>
+  <button onclick="exportarBackup()">Exportar Dados</button>
+  <input type="file" id="arquivoImportar" accept=".json" style="display:none" onchange="importarBackupArquivo(event)" />
+  <button onclick="document.getElementById('arquivoImportar').click()">Importar Dados</button>
+  <button class="btn-voltar" onclick="voltar()">Voltar</button>
+</div>
 
-// ===== Letras maiúsculas =====
-[usuario, senha].forEach(input => {
-  input.addEventListener('input', () => input.value = input.value.toUpperCase());
-});
+<!-- MENU CADASTRO -->
+<div class="container hidden" id="menuCadastro">
+  <h2>Cadastro</h2>
+  <button onclick="abrirInserir()">Inserir</button>
+  <button onclick="abrirConsultar()">Consultar</button>
+  <button class="btn-voltar" onclick="voltar()">Voltar</button>
+</div>
 
-// ===== Enter muda de campo ou envia =====
-usuario.addEventListener('keydown', e => {
-  if(e.key === 'Enter') {
-    e.preventDefault();
-    senha.focus();
-  }
-});
+<!-- INSERIR CADASTRO -->
+<div class="container hidden" id="inserir">
+  <h2>Inserir / Editar Funcionário</h2>
+  <input type="hidden" id="idEditando" />
 
-senha.addEventListener('keydown', e => {
-  if(e.key === 'Enter') {
-    e.preventDefault();
-    form.requestSubmit(); // envia o formulário
-  }
-});
+  <input type="text" id="nome" placeholder="Nome" />
+  <input type="text" id="cargo" placeholder="Cargo" />
 
-// ===== Mostrar / ocultar senha =====
-toggleSenha.addEventListener('click', () => {
-  if(senha.type === 'password') {
-    senha.type = 'text';
-    iconeOlho.textContent = 'visibility_off';
-  } else {
-    senha.type = 'password';
-    iconeOlho.textContent = 'visibility';
-  }
-});
+  <!-- 🆕 Campos adicionais -->
+  <input type="text" id="setor" placeholder="Setor" class="campo-grande" />
+  <input type="text" id="horario" placeholder="Horário" class="campo-grande" />
 
-// ===== Função para mostrar mensagem =====
-function mostrarMensagem(texto, tipo) {
-  mensagem.textContent = texto;
-  mensagem.className = `mensagem ${tipo}`;
-  setTimeout(() => {
-    mensagem.textContent = '';
-    mensagem.className = 'mensagem';
-  }, 2000);
+  <button onclick="salvarCadastro()">Salvar</button>
+  <button class="btn-voltar" onclick="voltarCadastro()">Voltar</button>
+</div>
+
+
+<!-- CONSULTAR CADASTRO -->
+<div class="container hidden" id="consultar">
+  <h2>Consultar Funcionários</h2>
+  <input type="text" id="filtro" placeholder="Filtrar por nome" oninput="mostrarCadastros()" />
+  <div class="lista" id="listaCadastros"></div>
+  <button class="btn-voltar" onclick="voltarCadastro()">Voltar</button>
+</div>
+
+<!-- MENU LANÇAMENTO -->
+<div class="container hidden" id="menuLancamento">
+  <h2>Lançamento</h2>
+  <button onclick="abrirInserirLancamento()">Inserir</button>
+  <button onclick="abrirConsultarLancamento()">Consultar</button>
+  <button class="btn-voltar" onclick="voltar()">Voltar</button>
+</div>
+
+<!-- INSERIR LANÇAMENTO -->
+<div class="container hidden" id="inserirLancamento">
+  <h2>Inserir / Editar Lançamento</h2>
+  <input type="hidden" id="idLancEditando" />
+  <input list="nomesCadastradosLanc" id="nomeLanc" placeholder="Nome do Funcionário" />
+  <datalist id="nomesCadastradosLanc"></datalist>
+  <input type="date" id="dataLanc" />
+  <select id="tipoLanc">
+    <option value="">Selecione Tipo</option>
+    <option value="VALE">VALE</option>
+    <option value="COMPRA">COMPRA</option>
+  </select>
+  <input type="number" id="valorLanc" placeholder="Valor" step="0.01" />
+  <button onclick="salvarLancamento()">Salvar</button>
+  <button class="btn-voltar" onclick="voltarLancamento()">Voltar</button>
+</div>
+
+<!-- CONSULTAR LANÇAMENTO -->
+<div class="container hidden" id="consultarLancamento">
+  <h2>Consultar Lançamentos</h2>
+  <input type="text" id="filtroLanc" placeholder="Filtrar por nome" oninput="mostrarLancamentos()" />
+  <input type="month" id="filtroMesAno" onchange="mostrarLancamentos()" />
+  <div class="lista" id="listaLancamentos"></div>
+  <button onclick="gerarPDFResumoLancamentos()">Gerar PDF</button>
+  <button class="btn-voltar" onclick="voltarLancamento()">Voltar</button>
+</div>
+
+<script>
+function esconderTudo(){ document.querySelectorAll('.container, .login-box').forEach(div=>div.classList.add('hidden')); }
+function abrirCadastro(){ esconderTudo(); document.getElementById('menuCadastro').classList.remove('hidden'); }
+function abrirLancamento(){ esconderTudo(); document.getElementById('menuLancamento').classList.remove('hidden'); }
+function voltar(){ esconderTudo(); document.getElementById('menu').classList.remove('hidden'); }
+function voltarCadastro(){ esconderTudo(); document.getElementById('menuCadastro').classList.remove('hidden'); }
+function voltarLancamento(){ esconderTudo(); document.getElementById('menuLancamento').classList.remove('hidden'); }
+function sair() {
+  mostrarAviso("🚪 Você clicou no botão Sair", "red");
+  setTimeout(() => location.reload(), 1500); // Espera 1.5s antes de recarregar a página
+}
+function fazerLogin(){
+  const u=document.getElementById('loginUsuario').value.toUpperCase();
+  const s=document.getElementById('loginSenha').value;
+  if(u==="ADMIN" && s==="1234"){ esconderTudo(); document.getElementById('menu').classList.remove('hidden'); atualizarDatalistLanc(); }
+  else alert("Usuário ou senha incorretos!");
 }
 
-// ===== Login fictício e Firebase =====
-form.addEventListener('submit', async e => {
-  e.preventDefault();
+/* === Funções Firebase (SDK) === */
+async function listarCadastrosArray() {
+  const snap = await db.ref("cadastros").get();
+  const data = snap.val() || {};
+  return Object.entries(data).map(([k, v]) => ({
+    id: k,
+    nome: v.nome || "",
+    cargo: v.cargo || "",
+    setor: v.setor || "",
+    horario: v.horario || ""
+  }));
+}
 
-  const usuarioVal = usuario.value.trim();
-  const senhaVal = senha.value.trim();
+async function adicionarCadastro(c){ await db.ref("cadastros").push(c); }
+async function atualizarCadastro(id,c){ await db.ref("cadastros/"+id).update(c); }
+async function excluirCadastroFb(id){ await db.ref("cadastros/"+id).remove(); }
 
-  // Login fictício
-  if(usuarioVal === "ADMIN" && senhaVal === "1234") {
-    mostrarMensagem("Login correto!", "sucesso");
-    setTimeout(() => { window.location.href = "menu.html"; }, 1000);
+async function listarLancamentosArray(){
+  const snap=await db.ref("lancamentos").get();
+  const data=snap.val()||{};
+  return Object.entries(data).map(([k,v])=>({id:k,...v}));
+}
+async function adicionarLancamento(l){ await db.ref("lancamentos").push(l); }
+async function atualizarLancamento(id,l){ await db.ref("lancamentos/"+id).update(l); }
+async function excluirLancamentoFb(id){ await db.ref("lancamentos/"+id).remove(); }
+
+/* === Cadastro === */
+async function abrirInserir() {
+  esconderTudo();
+  document.getElementById('inserir').classList.remove('hidden');
+  limparCamposCadastro();
+
+  // Focar no campo nome
+  const nomeCampo = document.getElementById('nome');
+  if (nomeCampo) nomeCampo.focus();
+}
+async function abrirConsultar(){ esconderTudo(); document.getElementById('consultar').classList.remove('hidden'); mostrarCadastros(); }
+async function salvarCadastro() {
+  const nome = document.getElementById('nome').value.toUpperCase();
+  const cargo = document.getElementById('cargo').value;
+  const setor = document.getElementById('setor').value;
+  const horario = document.getElementById('horario').value;
+  const id = document.getElementById('idEditando').value;
+
+  if (!nome || !cargo || !setor || !horario) return alert("Preencha todos os campos!");
+
+  const dados = { nome, cargo, setor, horario };
+
+  if (id) await atualizarCadastro(id, dados);
+  else await adicionarCadastro(dados);
+
+{
+  document.getElementById('idEditando').value = '';
+  document.getElementById('nome').value = '';
+  document.getElementById('cargo').value = '';
+  document.getElementById('setor').value = '';
+  document.getElementById('horario').value = '';
+}
+
+
+ // Limpar campos
+  limparCamposCadastro();
+
+  // Focar no campo nome para próximo cadastro
+  const nomeCampo = document.getElementById('nome');
+  if (nomeCampo) nomeCampo.focus();
+
+  // Atualizar lista de cadastros
+  mostrarCadastros();
+
+}
+async function mostrarCadastros() {
+  const filtro = document.getElementById('filtro').value.toUpperCase();
+  const lista = document.getElementById('listaCadastros');
+  lista.innerHTML = "";
+
+  const arr = await listarCadastrosArray();
+  const filtrados = arr.filter(c => c.nome.includes(filtro));
+
+  if (filtrados.length === 0) {
+    lista.innerHTML = "<p style='color:gray;text-align:center;'>Nenhum funcionário encontrado.</p>";
     return;
   }
 
-  // Login Firebase
-  import("./firebase.js").then(({ auth }) => {
-    import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js")
-      .then(({ signInWithEmailAndPassword }) => {
-        signInWithEmailAndPassword(auth, usuarioVal + "@empresa.com", senhaVal)
-          .then(() => {
-            mostrarMensagem("Login correto!", "sucesso");
-            setTimeout(() => { window.location.href = "menu.html"; }, 1000);
-          })
-          .catch(() => {
-            mostrarMensagem("Usuário ou senha incorretos!", "erro");
-            form.reset();
-            usuario.focus();
-          });
-      });
+  // 🧾 Cabeçalho estilo planilha
+  const header = document.createElement('div');
+  header.className = 'linha-cabecalho';
+  header.innerHTML = `
+    <span class="col-nome">Nome</span>
+    <span class="col-cargo">Cargo</span>
+    <span class="col-setor">Setor</span>
+    <span class="col-horario">Horário</span>
+    <span class="col-acoes">Ações</span>
+  `;
+  lista.appendChild(header);
+
+  // 🧍 Lista de funcionários
+  filtrados.forEach(c => {
+    const d = document.createElement('div');
+    d.className = 'linha-dados';
+    d.innerHTML = `
+      <span class="col-nome" ondblclick="editarCadastro('${c.id}')">${c.nome}</span>
+      <span class="col-cargo">${c.cargo || '-'}</span>
+      <span class="col-setor">${c.setor || '-'}</span>
+      <span class="col-horario">${c.horario || '-'}</span>
+      <button class="btn-excluir" onclick="excluirCadastro('${c.id}')">🗑️</button>
+    `;
+    lista.appendChild(d);
   });
-});
+}
+
+async function editarCadastro(id) {
+  const arr = await listarCadastrosArray();
+  const c = arr.find(x => x.id === id);
+  if (!c) return;
+
+  esconderTudo();
+  document.getElementById('inserir').classList.remove('hidden');
+
+  document.getElementById('idEditando').value = c.id;
+  document.getElementById('nome').value = c.nome;
+  document.getElementById('cargo').value = c.cargo;
+  document.getElementById('setor').value = c.setor || '';
+  document.getElementById('horario').value = c.horario || '';
+}
+async function excluirCadastro(id){ if(confirm("Excluir?")){await excluirCadastroFb(id);} atualizarDatalistLanc(); }
+function limparCamposCadastro(){document.getElementById('idEditando').value='';document.getElementById('nome').value='';document.getElementById('cargo').value='';}
+
+/* === Lançamentos === */
+async function abrirInserirLancamento(){ esconderTudo(); document.getElementById('inserirLancamento').classList.remove('hidden'); atualizarDatalistLanc(); }
+async function abrirConsultarLancamento(){ esconderTudo(); document.getElementById('consultarLancamento').classList.remove('hidden'); mostrarLancamentos(); }
+async function salvarLancamento(){
+  const nome=document.getElementById('nomeLanc').value.toUpperCase();
+  const data=document.getElementById('dataLanc').value;
+  const tipo=document.getElementById('tipoLanc').value;
+  const valor=parseFloat(document.getElementById('valorLanc').value);
+  const id=document.getElementById('idLancEditando').value;
+  if(!nome||!data||!tipo||isNaN(valor))return alert("Preencha tudo");
+  if(id) await atualizarLancamento(id,{nome,data,tipo,valor}); else await adicionarLancamento({nome,data,tipo,valor});
+}
+async function mostrarLancamentos() {
+  const lista = document.getElementById('listaLancamentos');
+  const filtro = document.getElementById('filtroLanc').value.toUpperCase();
+  const mes = document.getElementById('filtroMesAno').value;
+
+  lista.innerHTML = "";
+
+  // ✅ Campo mês/ano obrigatório
+  if (!mes) {
+    lista.innerHTML = "<div style='color:red; font-weight:bold;'>Selecione mês e ano para exibir os lançamentos.</div>";
+    return;
+  }
+
+  let arr = await listarLancamentosArray();
+  if (filtro) arr = arr.filter(l => l.nome.includes(filtro));
+  arr = arr.filter(l => l.data.startsWith(mes));
+
+  arr.forEach(l => {
+    const d = document.createElement('div');
+    d.className = 'item';
+    d.innerHTML = `<span ondblclick="editarLancamento('${l.id}')"><b>${l.nome}</b> | ${l.data} | ${l.tipo} | R$ ${l.valor}</span>
+                   <button class='btn-excluir' onclick="excluirLancamento('${l.id}')">🗑️</button>`;
+    lista.appendChild(d);
+  });
+}
+async function editarLancamento(id){
+  const arr=await listarLancamentosArray(); const l=arr.find(x=>x.id===id);
+  if(!l)return; esconderTudo(); document.getElementById('inserirLancamento').classList.remove('hidden');
+  document.getElementById('idLancEditando').value=l.id;
+  document.getElementById('nomeLanc').value=l.nome;
+  document.getElementById('dataLanc').value=l.data;
+  document.getElementById('tipoLanc').value=l.tipo;
+  document.getElementById('valorLanc').value=l.valor;
+}
+async function excluirLancamento(id){ if(confirm("Excluir?")){await excluirLancamentoFb(id);} }
+async function atualizarDatalistLanc(){
+  const dl=document.getElementById('nomesCadastradosLanc'); dl.innerHTML="";
+  const arr=await listarCadastrosArray(); arr.forEach(c=>{const o=document.createElement('option');o.value=c.nome;dl.appendChild(o);});
+}
+
+/* === PDF === */
+async function gerarPDFResumoLancamentos() {
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
+  const pageWidth = pdf.internal.pageSize.getWidth();
+
+  pdf.setFontSize(14);
+  pdf.text("SUPERMERCADO LEV +", pageWidth / 2, 15, { align: "center" });
+  //pdf.line(10, 20, pageWidth - 10, 20);
+
+  // === Mostrar período abaixo do título ===
+  const mesAno = document.getElementById('filtroMesAno').value;
+  let periodoTexto = "Período: ";
+  if (mesAno) {
+    const [ano, mes] = mesAno.split("-");
+    periodoTexto += `${mes}/${ano}`;
+  } else {
+    periodoTexto += "Todos";
+  }
+  pdf.setFontSize(12);
+  pdf.setFont("helvetica", "normal");
+  pdf.text(periodoTexto, pageWidth / 2, 22, { align: "center" });
+
+  pdf.line(10, 28, pageWidth - 10, 28);
+
+  let y = 35;
+
+  let arr = await listarLancamentosArray();
+  if (mesAno) arr = arr.filter(l => l.data.startsWith(mesAno));
+
+  const soma = {};
+  arr.forEach(l => soma[l.nome] = (soma[l.nome] || 0) + parseFloat(l.valor));
+
+  pdf.setFontSize(12);
+  for (const nome in soma) {
+    const valor = "R$ " + soma[nome].toFixed(2).replace('.', ',');
+
+    // === Criar linha com pontos ===
+    const linha = nome + " ";
+    const larguraNome = pdf.getTextWidth(linha);
+    const larguraTotal = pageWidth - 20; // margem 10 + 10
+    const larguraPontos = larguraTotal - larguraNome - pdf.getTextWidth(valor);
+    const pontos = ".".repeat(Math.floor(larguraPontos / pdf.getTextWidth(".")));
+
+    pdf.text(nome + " " + pontos + " " + valor, 10, y);
+    y += 8;
+    if (y > 280) {
+      pdf.addPage();
+      y = 20;
+    }
+  }
+
+  const total = Object.values(soma).reduce((a, b) => a + b, 0);
+  y += 10;
+  pdf.setFont("helvetica", "bold");
+  const totalStr = "R$ " + total.toFixed(2).replace('.', ',');
+  const linhaTotal = "TOTAL ";
+  const larguraTotalLinha = pageWidth - 20;
+  const larguraPontosTotal = larguraTotalLinha - pdf.getTextWidth(linhaTotal) - pdf.getTextWidth(totalStr);
+  const pontosTotal = ".".repeat(Math.floor(larguraPontosTotal / pdf.getTextWidth(".")));
+  pdf.text(linhaTotal + pontosTotal + totalStr, 10, y);
+
+}
+  const total=Object.values(soma).reduce((a,b)=>a+b,0);
+  y+=10; pdf.setFont("helvetica","bold");
+  pdf.text(`TOTAL ................ R$ ${total.toFixed(2).replace('.',',')}`,10,y);
+  pdf.save("RESUMO_LANCAMENTOS.pdf");
+
 </script>
+<script>
+  
+</script>
+<!-- 🔥 SDKs Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "SUA_API_KEY",
+    authDomain: "funcionarios-7c778.firebaseapp.com",
+    databaseURL: "https://funcionarios-7c778-default-rtdb.firebaseio.com",
+    projectId: "funcionarios-7c778",
+    storageBucket: "funcionarios-7c778.appspot.com",
+    messagingSenderId: "1057586582057",
+    appId: "1:1057586582057:web:92e52db71c1b503d72c20f"
+  };
+  firebase.initializeApp(firebaseConfig);
+  window.db = firebase.database();
+
+  // 🔁 Atualização em tempo real
+  db.ref("cadastros").on("value", mostrarCadastros);
+  db.ref("lancamentos").on("value", mostrarLancamentos);
+</script>
+
+<script>
+  // === Foco automático e Enter muda campo ===
+  document.addEventListener("DOMContentLoaded", () => {
+    const usuario = document.getElementById("loginUsuario");
+    const senha = document.getElementById("loginSenha");
+    const botao = document.querySelector("#loginContainer button");
+
+    if (usuario && senha && botao) {
+
+      // Pressionar Enter no campo senha → faz login
+      senha.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          botao.click();
+        }
+      });
+    }
+  });
+  // === Foco e Enter mudando de campo ===
+  document.addEventListener("DOMContentLoaded", () => {
+    const usuario = document.getElementById("loginUsuario");
+    const senha = document.getElementById("loginSenha");
+    const botao = document.querySelector("#loginContainer button");
+
+    if (usuario && senha && botao) {
+      usuario.focus();
+
+      usuario.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          senha.focus();
+        }
+      });
+
+      senha.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          botao.click();
+        }
+      });
+    }
+  });
+
+ 
+  
+  // === MENSAGEM FLUTUANTE ===
+  function mostrarAviso(msg, cor = "green") {
+    let aviso = document.getElementById("avisoLogin");
+    if (!aviso) {
+      aviso = document.createElement("div");
+      aviso.id = "avisoLogin";
+      aviso.style.position = "fixed";
+      aviso.style.top = "20px";
+      aviso.style.left = "50%";
+      aviso.style.transform = "translateX(-50%)";
+      aviso.style.padding = "12px 20px";
+      aviso.style.borderRadius = "8px";
+      aviso.style.color = "#fff";
+      aviso.style.fontWeight = "bold";
+      aviso.style.boxShadow = "0 2px 8px rgba(0,0,0,0.2)";
+      aviso.style.zIndex = "9999";
+      document.body.appendChild(aviso);
+    }
+    aviso.style.backgroundColor = cor === "green" ? "#28a745" : "#dc3545";
+    aviso.textContent = msg;
+    aviso.style.display = "block";
+    setTimeout(() => (aviso.style.display = "none"), 2000);
+  }
+
+  // === LOGIN ===
+function fazerLogin() {
+  const usuarioEl = document.getElementById("loginUsuario");
+  const senhaEl = document.getElementById("loginSenha");
+  const usuario = usuarioEl.value.trim().toUpperCase();
+  const senha = senhaEl.value.trim();
+
+  // Limpa estilos antigos
+  usuarioEl.style.border = senhaEl.style.border = "1px solid #ccc";
+
+  // === CAMPOS VAZIOS ===
+  if (!usuario && !senha) {
+    mostrarAviso("❌ Informe usuário e senha!", "red");
+    usuarioEl.focus();
+    usuarioEl.value = "";
+    senhaEl.value = "";
+    usuarioEl.style.border = senhaEl.style.border = "2px solid red";
+    return;
+  }
+  if (!usuario) {
+    mostrarAviso("❌ Informe o usuário!", "red");
+    usuarioEl.focus();
+    usuarioEl.value = "";
+    usuarioEl.style.border = "2px solid red";
+    return;
+  }
+  if (!senha) {
+    mostrarAviso("❌ Informe a senha!", "red");
+    senhaEl.focus();
+    senhaEl.value = "";
+    senhaEl.style.border = "2px solid red";
+    return;
+  }
+
+  // === LOGIN CORRETO ===
+  if (usuario === "ADMIN" && senha === "1234") {
+    mostrarAviso("✅ Login realizado com sucesso!", "green");
+    setTimeout(() => {
+      document.getElementById("loginContainer").classList.add("hidden");
+      document.getElementById("menu").classList.remove("hidden");
+      atualizarDatalistLanc();
+    }, 500);
+  } 
+  // === LOGIN ERRADO ===
+  else {
+    mostrarAviso("❌ Usuário ou senha incorretos!", "red");
+    usuarioEl.style.border = senhaEl.style.border = "2px solid red";
+
+    if (usuario !== "ADMIN") {
+      usuarioEl.value = "";
+      usuarioEl.focus();
+    } else {
+      senhaEl.value = "";
+      senhaEl.focus();
+    }
+  }
+}
+
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+  // === Cadastro de Funcionários ===
+const nome = document.getElementById("nome");
+const cargo = document.getElementById("cargo");
+const setor = document.getElementById("setor");
+const horario = document.getElementById("horario");
+const salvar = document.querySelector("#inserir button[onclick='salvarCadastro()']");
+
+if (nome && cargo && setor && horario && salvar) {
+  nome.focus(); // Foco inicial no primeiro campo
+
+  nome.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      cargo.focus();
+    }
+  });
+
+  cargo.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      setor.focus();
+    }
+  });
+
+  setor.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      horario.focus();
+    }
+  });
+}
+ 
+
+  // === Lançamento ===
+  const nomeLanc = document.getElementById("nomeLanc");
+  const dataLanc = document.getElementById("dataLanc");
+  const tipoLanc = document.getElementById("tipoLanc");
+  const valorLanc = document.getElementById("valorLanc");
+  const salvarLanc = document.querySelector("#inserirLancamento button");
+
+  if (nomeLanc && dataLanc && tipoLanc && valorLanc && salvarLanc) {
+    nomeLanc.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); dataLanc.focus(); }
+    });
+    dataLanc.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); tipoLanc.focus(); }
+    });
+    tipoLanc.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); valorLanc.focus(); }
+    });
+    valorLanc.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); salvarLanc.click(); }
+    });
+  }
+});
+
+</script>
+
+<script>
+// === ABRIR / FECHAR BACKUP ===
+function abrirBackup() {
+  esconderTudo();
+  document.getElementById('menuBackup').classList.remove('hidden');
+}
+
+// === EXPORTAR BACKUP ===
+async function exportarBackup() {
+  try {
+    const snapshot = await db.ref("/").get();
+    const dados = snapshot.val() || {};
+    const blob = new Blob([JSON.stringify(dados, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `backup-funcionarios-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    alert("✅ Backup exportado com sucesso!");
+  } catch (e) {
+    alert("❌ Erro ao exportar backup: " + e.message);
+  }
+}
+
+// === IMPORTAR BACKUP ===
+async function importarBackupArquivo(event) {
+  const arquivo = event.target.files[0];
+  if (!arquivo) return;
+
+  //if (!confirm("⚠️ Isso irá substituir os dados atuais. Deseja continuar?")) return;
+
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    try {
+      const dados = JSON.parse(e.target.result);
+      await db.ref("/").set(dados);
+      //alert("✅ Backup importado com sucesso!");
+      //location.reload();
+      // ⬇️ mensagem de 2 segundos:
+      mostrarAviso("✅ Backup importado com sucesso!", "green");
+    } catch (err) {
+      alert("❌ Erro ao importar backup: " + err.message);
+    }
+  };
+   reader.readAsText(arquivo);
+}
+</script>
+
 
 </body>
 </html>
+
