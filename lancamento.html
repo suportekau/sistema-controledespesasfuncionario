@@ -3,11 +3,12 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Sistema de Cadastro e Consulta</title>
+<title>Sistema de Lançamentos</title>
 <style>
 body {
   font-family: Arial, sans-serif;
-  margin: 0; padding: 0;
+  margin: 0;
+  padding: 0;
   background: #f0f0f0;
   height: 100vh;
   display: flex;
@@ -41,7 +42,50 @@ body {
 }
 .tab-content:not(.active) { display: none; }
 
-/* Título da aba */
+/* Filtro + Botões */
+.filtro-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.filtro-container input[type=text] {
+  width: 250px;
+  padding: 6px 8px;
+  text-transform: uppercase;
+}
+.filtro-container button {
+  padding: 6px 12px;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Botões de ação */
+#btnInserir { background: #4caf50; color: white; }
+#btnSair { background: #f44336; color: white; }
+#btnSalvar { background: #4caf50; color: white; }
+#btnCancelar { background: #f44336; color:white; }
+
+/* Formulário */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+form input[type=text],
+form input[type=number],
+form input[type=date],
+form select {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+/* Indicadores visuais */
 .titulo-aba {
   font-size: 22px;
   font-weight: bold;
@@ -60,142 +104,68 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Formulário */
-form label {
-  display: block;
-  margin-top: 10px;
-  font-weight: bold;
-}
-form input[type=text],
-form input[type=date],
-form input[type=time] {
-  width: 100%;
-  padding: 8px;
-  box-sizing: border-box;
-  font-size: 14px;
-  text-transform: uppercase;
-}
-form input[type=time] { text-transform: none; }
-form input[readonly] { background: #ddd; }
-
 /* Tabela */
-/* 🔹 Ajustes visuais da tabela de consulta */
-#consultaContainer h2 {
-  text-align: left;         /* título alinhado à esquerda */
-  font-size: 18px;          /* diminui levemente o tamanho */
-  margin-bottom: 15px;
-  color: #333;
-}
-
-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0 3px;    /* pequeno espaço entre linhas */
-  font-size: 14px;          /* letras um pouco menores */
-}
-
-th, td {
-  padding: 4px 8px;         /* mais compacto */
-  border: none;
-  text-align: left;
-}
-
-th {
-  background-color: #f2f2f2;
-  font-weight: bold;
-}
-
-tr {
-  background-color: #fff;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* destaque entre linhas */
-  border-radius: 6px;
-}
-
-tr:nth-child(even) {
-  background-color: #fafafa; /* linhas alternadas */
-}
-
-tr:hover {
-  background-color: #e7f3ff; /* destaque ao passar o mouse */
-  transition: background-color 0.2s ease;
-}
-
-#filtroGeral { width: 250px; padding: 6px 8px; margin-right: 10px; text-transform: uppercase; }
-#filtros { margin-bottom: 15px; display:flex; align-items:center; gap:10px; }
-
-#btnSair { background:#f44336; color:white; padding:8px 14px; border:none; border-radius:4px; cursor:pointer; }
-#btnInserirCadastro { background:#4caf50; color:white; padding:8px 14px; border:none; border-radius:4px; cursor:pointer; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: middle; }
+th { background: #1976d2; color: white; }
+tr:nth-child(even) { background: #f9f9f9; }
+td.actions { text-align: center; }
+td.actions button { background: transparent; border: none; cursor: pointer; font-size: 16px; margin: 0 5px; }
+td.actions button.edit { color: #2196f3; }
+td.actions button.delete { color: #f44336; }
 </style>
 </head>
 <body>
 
 <!-- Abas -->
 <div class="tabs">
-  <div class="tab" data-tab="inserir">Inserir Dados</div>
+  <div class="tab" data-tab="inserir">Inserir Lançamento</div>
   <div class="tab active" data-tab="consulta">Consulta</div>
 </div>
 
 <!-- Aba Inserir -->
 <div id="inserir" class="tab-content">
-  <div class="titulo-aba">Inserir Novo Registro</div>
-  <form id="formCadastro">
+  <div class="titulo-aba">Inserir Novo Lançamento</div>
+  <div class="filtro-container">
+    <input type="text" id="filtroNomeInserir" placeholder="Filtrar nome no cadastro">
+    <button id="btnSalvar">Salvar</button>
+    <button id="btnCancelar">Cancelar</button>
+  </div>
+  <form id="formLanc">
+    <label for="nomeLanc">Nome</label>
+    <input type="text" id="nomeLanc" list="listaNomes" autocomplete="off" required />
+    <datalist id="listaNomes"></datalist>
 
-    <div style="display:flex; align-items:flex-end; gap:10px;">
-      <div style="flex:0 0 100px;">
-        <label for="id">ID</label>
-        <input type="text" id="id" readonly style="width:100%; text-align:center;" />
-      </div>
+    <label for="tipoLanc">Tipo</label>
+    <select id="tipoLanc">
+      <option value="">Selecione...</option>
+      <option value="COMPRA">COMPRA</option>
+      <option value="VALE">VALE</option>
+    </select>
 
-      <div style="flex-grow:1; display:flex; justify-content:flex-end; gap:10px;">
-        <button type="button" id="btnSalvar" 
-          style="background:#4caf50; color:white; border:none; padding:8px 16px; border-radius:4px; font-weight:bold; cursor:pointer;">
-          Salvar
-        </button>
-        <button type="button" id="btnCancelar" 
-          style="background:#f44336; color:white; border:none; padding:8px 16px; border-radius:4px; font-weight:bold; cursor:pointer;">
-          Cancelar
-        </button>
-      </div>
-    </div>
+    <label for="valorLanc">Valor</label>
+    <input type="number" id="valorLanc" min="0" step="0.01" required />
 
-    <label for="nome">Nome</label>
-    <input type="text" id="nome" autocomplete="off" required />
-
-    <label for="cargo">Cargo</label>
-    <input type="text" id="cargo" autocomplete="off" />
-
-    <label for="setor">Setor</label>
-    <input type="text" id="setor" autocomplete="off" />
-
-    <label for="horarioInicio">Horário Início</label>
-    <input type="time" id="horarioInicio" />
-
-    <label for="horarioFim">Horário Fim</label>
-    <input type="time" id="horarioFim" />
-
-    <label for="dataAdm">Data Admissão</label>
-    <input type="date" id="dataAdm" />
+    <label for="dataLanc">Data</label>
+    <input type="date" id="dataLanc" required />
   </form>
 </div>
 
 <!-- Aba Consulta -->
 <div id="consulta" class="tab-content active">
-  <div class="titulo-aba">Consulta de Registros</div>
-  <div id="filtros">
-    <input type="text" id="filtroGeral" placeholder="FILTRAR QUALQUER CAMPO..." />
-    <button id="btnInserirCadastro">Inserir Cadastro</button>
+  <div class="titulo-aba">Consulta de Lançamentos</div>
+  <div class="filtro-container">
+    <input type="text" id="filtroLanc" placeholder="Filtrar lançamentos">
+    <button id="btnInserir">Inserir Lançamento</button>
     <button id="btnSair">Sair</button>
   </div>
-
-  <table id="tabelaConsulta">
+  <table id="tabelaLanc">
     <thead>
       <tr>
-        <th>Id</th>
         <th>Nome</th>
-        <th>Cargo</th>
-        <th>Setor</th>
-        <th>Horário</th>
-        <th>Data Adm</th>
+        <th>Tipo</th>
+        <th>Valor</th>
+        <th>Data</th>
         <th>Ações</th>
       </tr>
     </thead>
@@ -204,12 +174,6 @@ tr:hover {
 </div>
 
 <script>
-// ======================
-// CONFIGURAÇÃO DO SISTEMA
-// ======================
-const CHAVE_DADOS = "sistema_funcionarios_v1_1";
-const CHAVE_NEXTID = "sistema_funcionarios_v1_1_nextId";
-
 // === Abas ===
 const tabs = document.querySelectorAll('.tab');
 const tabContents = document.querySelectorAll('.tab-content');
@@ -221,194 +185,159 @@ function abrirAba(nomeAba) {
   document.querySelector(`.tab[data-tab="${nomeAba}"]`)?.classList.add('active');
   document.getElementById(nomeAba)?.classList.add('active');
   if(nomeAba === 'inserir') inputNome.focus();
-  if(nomeAba === 'consulta') filtroInput.focus();
+  if(nomeAba === 'consulta') filtroLanc.focus();
 }
 
-// === Carregar dados ===
-let registros = JSON.parse(localStorage.getItem(CHAVE_DADOS)) || [];
-let proximoId = parseInt(localStorage.getItem(CHAVE_NEXTID)) || 
-                (registros.length ? Math.max(...registros.map(r=>r.id)) + 1 : 1);
-let editandoId = null;
+// === Dados ===
+let lancamentos = JSON.parse(localStorage.getItem('lancamentos')) || [];
+let registros = JSON.parse(localStorage.getItem('registros')) || []; // nomes do cadastro
+let editando = null;
 
 // === Campos ===
-const formCadastro = document.getElementById('formCadastro');
-const inputId = document.getElementById('id');
-const inputNome = document.getElementById('nome');
-const inputCargo = document.getElementById('cargo');
-const inputSetor = document.getElementById('setor');
-const inputHorarioInicio = document.getElementById('horarioInicio');
-const inputHorarioFim = document.getElementById('horarioFim');
-const inputDataAdm = document.getElementById('dataAdm');
+const inputNome = document.getElementById('nomeLanc');
+const inputTipo = document.getElementById('tipoLanc');
+const inputValor = document.getElementById('valorLanc');
+const inputData = document.getElementById('dataLanc');
 const btnSalvar = document.getElementById('btnSalvar');
 const btnCancelar = document.getElementById('btnCancelar');
-const filtroInput = document.getElementById('filtroGeral');
-const btnInserirCadastro = document.getElementById('btnInserirCadastro');
+const filtroNomeInserir = document.getElementById('filtroNomeInserir');
+const filtroLanc = document.getElementById('filtroLanc');
+const btnInserir = document.getElementById('btnInserir');
+const btnSair = document.getElementById('btnSair');
+const datalistNomes = document.getElementById('listaNomes');
 
 // === Funções ===
 function limparFormulario() {
-  inputNome.value = inputCargo.value = inputSetor.value = "";
-  inputHorarioInicio.value = inputHorarioFim.value = inputDataAdm.value = "";
-  editandoId = null;
+  inputNome.value = "";
+  inputTipo.value = "";
+  inputValor.value = "";
+  inputData.value = "";
+  editando = null;
   btnSalvar.textContent = "Salvar";
-  inputId.value = proximoId;
   inputNome.focus();
 }
 
-// === Enter muda campo ===
-const formFields = Array.from(formCadastro.querySelectorAll('input:not([readonly])'));
-formCadastro.addEventListener('keydown', e => {
-  if(e.key === "Enter") {
-    e.preventDefault();
-    const idx = formFields.indexOf(e.target);
-    if(idx >= 0 && idx < formFields.length - 1) formFields[idx+1].focus();
-    else btnSalvar.focus();
-  }
-});
+function atualizarListaNomes() {
+  datalistNomes.innerHTML = '';
+  registros.forEach(r => {
+    const option = document.createElement('option');
+    option.value = r.nome;
+    datalistNomes.appendChild(option);
+  });
+}
 
-// === Maiúsculas automáticas ===
-[inputNome, inputCargo, inputSetor].forEach(input => {
-  input.addEventListener('input', () => input.value = input.value.toUpperCase());
-});
-
-// === Salvar ===
-btnSalvar.addEventListener('click', () => {
-  if(!inputNome.value.trim()){ alert("NOME OBRIGATÓRIO"); inputNome.focus(); return; }
-
-  if (inputHorarioInicio.value && inputHorarioFim.value) {
-    if (inputHorarioFim.value <= inputHorarioInicio.value) {
-      alert("O horário de término deve ser maior que o horário de início!");
-      inputHorarioFim.focus();
-      return;
-    }
-  }
-
-  const registro = {
-    id: editandoId || proximoId,
-    nome: inputNome.value.trim(),
-    cargo: inputCargo.value.trim(),
-    setor: inputSetor.value.trim(),
-    horario: inputHorarioInicio.value + " às " + inputHorarioFim.value,
-    admissao: inputDataAdm.value
-  };
-
-  if(editandoId) {
-    const idx = registros.findIndex(r => r.id === editandoId);
-    registros[idx] = registro;
-  } else {
-    registros.push(registro);
-    proximoId++;
-  }
-
-  localStorage.setItem(CHAVE_DADOS, JSON.stringify(registros));
-  localStorage.setItem(CHAVE_NEXTID, proximoId);
-  limparFormulario();
-  atualizarTabela();
-  abrirAba('consulta');
-});
-
-// === Cancelar ===
-btnCancelar.addEventListener('click', () => {
-  limparFormulario();
-  abrirAba('consulta');
-});
-
-// === Atualizar tabela ===
-function atualizarTabela(filtro = "") {
-  const tbody = document.querySelector("#tabelaConsulta tbody");
+function atualizarTabela(filtro="") {
+  const tbody = document.querySelector("#tabelaLanc tbody");
   tbody.innerHTML = "";
+  filtro = filtro.toUpperCase();
 
-  let filtrados = registros;
-  if(filtro.trim() !== "") {
-    const f = filtro.toUpperCase();
-    filtrados = registros.filter(r =>
-      r.id.toString().includes(f) ||
-      r.nome.includes(f) ||
-      r.cargo.includes(f) ||
-      r.setor.includes(f) ||
-      r.horario.includes(f) ||
-      formatarData(r.admissao).includes(f)
-    );
-  }
+  const filtrados = lancamentos.filter(l =>
+    l.nome.includes(filtro) ||
+    l.tipo.includes(filtro) ||
+    formatarData(l.data).includes(filtro)
+  ).sort((a,b)=> a.nome.localeCompare(b.nome));
 
-  filtrados.sort((a,b)=> a.nome.localeCompare(b.nome));
-
-  filtrados.forEach(reg => {
+  filtrados.forEach((l, idx) => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${reg.id}</td>
-      <td>${reg.nome}</td>
-      <td>${reg.cargo}</td>
-      <td>${reg.setor}</td>
-      <td>${reg.horario}</td>
-      <td>${formatarData(reg.admissao)}</td>
+      <td>${l.nome}</td>
+      <td>${l.tipo}</td>
+      <td>R$ ${l.valor}</td>
+      <td>${formatarData(l.data)}</td>
       <td class="actions">
         <button class="edit" title="Editar">&#9998;</button>
         <button class="delete" title="Excluir">&#10060;</button>
-      </td>`;
+      </td>
+    `;
     tbody.appendChild(tr);
 
     tr.querySelector('.edit').addEventListener('click', () => {
-      preencherFormulario(reg);
+      preencherFormulario(l, idx);
       abrirAba('inserir');
     });
     tr.querySelector('.delete').addEventListener('click', () => {
-      if(confirm(`Excluir ${reg.nome}?`)){
-        registros = registros.filter(r => r.id !== reg.id);
-        localStorage.setItem(CHAVE_DADOS, JSON.stringify(registros));
-        atualizarTabela(filtroInput.value);
+      if(confirm(`Excluir lançamento de ${l.nome}?`)) {
+        lancamentos.splice(idx, 1);
+        localStorage.setItem('lancamentos', JSON.stringify(lancamentos));
+        atualizarTabela(filtro);
       }
     });
   });
 }
 
-// === Editar ===
-function preencherFormulario(r) {
-  inputId.value = r.id;
-  inputNome.value = r.nome;
-  inputCargo.value = r.cargo;
-  inputSetor.value = r.setor;
-  const h = r.horario.split(" às ");
-  inputHorarioInicio.value = h[0] || "";
-  inputHorarioFim.value = h[1] || "";
-  inputDataAdm.value = r.admissao;
-  editandoId = r.id;
+function preencherFormulario(l, idx) {
+  inputNome.value = l.nome;
+  inputTipo.value = l.tipo;
+  inputValor.value = l.valor;
+  inputData.value = l.data;
+  editando = idx;
   btnSalvar.textContent = "Atualizar";
   inputNome.focus();
 }
 
-// === Formata data ===
-function formatarData(data){
-  if(!data) return "";
-  const d = new Date(data);
-  return d.toLocaleDateString("pt-BR");
+function formatarData(dataStr) {
+  if(!dataStr) return "";
+  const d = new Date(dataStr);
+  const dia = String(d.getDate()).padStart(2,'0');
+  const mes = String(d.getMonth()+1).padStart(2,'0');
+  const ano = d.getFullYear();
+  return `${dia}/${mes}/${ano}`;
 }
 
-// === Filtro ===
-filtroInput.addEventListener('input', () => {
-  filtroInput.value = filtroInput.value.toUpperCase();
-  atualizarTabela(filtroInput.value);
+// === Filtros ===
+filtroNomeInserir.addEventListener('input', () => filtroNomeInserir.value = filtroNomeInserir.value.toUpperCase());
+filtroLanc.addEventListener('input', () => {
+  filtroLanc.value = filtroLanc.value.toUpperCase();
+  atualizarTabela(filtroLanc.value);
 });
 
-// === Botão Inserir Cadastro ===
-btnInserirCadastro.addEventListener('click', () => {
+// === Botões ===
+btnSalvar.addEventListener('click', () => {
+  const nome = inputNome.value.trim().toUpperCase();
+  if(!nome) { alert("Nome obrigatório"); inputNome.focus(); return; }
+  if(!registros.some(r => r.nome.toUpperCase() === nome)) { 
+    alert("Nome não encontrado no cadastro"); 
+    inputNome.focus(); 
+    return; 
+  }
+  if(!inputTipo.value) { alert("Selecione o tipo"); inputTipo.focus(); return; }
+  if(!inputValor.value) { alert("Informe o valor"); inputValor.focus(); return; }
+
+  const novo = {
+    nome,
+    tipo: inputTipo.value,
+    valor: parseFloat(inputValor.value).toFixed(2),
+    data: inputData.value
+  };
+
+  if(editando !== null) lancamentos[editando] = novo;
+  else lancamentos.push(novo);
+
+  localStorage.setItem('lancamentos', JSON.stringify(lancamentos));
   limparFormulario();
+  atualizarTabela();
+  abrirAba('consulta');
+});
+
+btnCancelar.addEventListener('click', () => {
+  limparFormulario();
+  abrirAba('consulta');
+});
+
+btnInserir.addEventListener('click', () => {
   abrirAba('inserir');
 });
 
-// === Sair ===
-document.getElementById('btnSair').addEventListener('click', () => {
-  if (confirm("Deseja realmente sair e voltar ao menu principal?")) {
-    window.location.href = "menu.html";
-  }
+btnSair.addEventListener('click', () => {
+  window.location.href = "menu.html";
 });
 
 // === Inicialização ===
+atualizarListaNomes();
 limparFormulario();
 atualizarTabela();
 abrirAba('consulta');
 </script>
 
-<script type="module" src="firebase.js"></script>
-<script type="module" src="app.js"></script>
 </body>
 </html>
