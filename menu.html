@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menu Principal</title>
+  <!-- Link para ícones do Google Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #e0e0e0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .menu-box {
+      background-color: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      text-align: center;
+      width: 320px;
+    }
+    h1 {
+      margin-bottom: 30px;
+      font-size: 24px;
+      color: #333;
+    }
+    .menu-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 12px;
+      margin: 12px 0;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      color: white;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .menu-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    .menu-button i {
+      margin-right: 10px;
+      font-size: 20px;
+    }
+    /* Cores diferentes para cada botão */
+    .cadastro { background-color: #4CAF50; }   /* verde */
+    .lancamento { background-color: #2196F3; } /* azul */
+    .bkb { background-color: #FF9800; }        /* laranja */
+    .sair { background-color: #f44336; }       /* vermelho */
+  </style>
+</head>
+<body>
+
+  <div class="menu-box">
+    <h1>Menu Principal</h1>
+    <button class="menu-button cadastro" onclick="window.location.href='cadastro.html'">
+      <i class="material-icons">person_add</i> Cadastro
+  </button>
+    <button class="menu-button lancamento" onclick="window.location.href='lancamento.html'">
+      <i class="material-icons">attach_money</i> Lançamento
+  </button>
+   <button class="menu-button bkp" onclick="window.location.href='bkp.html'" style="background:#FF9800; color:white;">
+  <i class="material-icons">backup</i> BKP
+</button>
+    <button class="menu-button sair" onclick="sair()">
+      <i class="material-icons">exit_to_app</i> Sair
+    </button>
+  </div>
+
+  <script>
+    function sair() {
+      // Redireciona para a página de login
+      window.location.href = "index.html"; // ou o nome do seu login
+    }
+  </script>
+
+</body>
+</html>
