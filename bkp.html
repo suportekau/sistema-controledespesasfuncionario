@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Backup - Sistema Funcionários</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+#menuBkp {
+  width: 340px;
+  text-align: center;
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+}
+
+h2 {
+  margin-bottom: 25px;
+  color: #333;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.3s ease;
+}
+
+.botoes-verde { background-color: #4CAF50; }
+.botoes-verde:hover { background-color: #45a049; transform: scale(1.03); }
+
+.botoes-azul { background-color: #2196F3; }
+.botoes-azul:hover { background-color: #0b7dda; transform: scale(1.03); }
+
+.botoes-laranja { background-color: #FF9800; }
+.botoes-laranja:hover { background-color: #e68a00; transform: scale(1.03); }
+
+footer {
+  margin-top: 15px;
+  font-size: 13px;
+  color: #666;
+}
+</style>
+</head>
+<body>
+
+<div id="menuBkp">
+  <h2>Backup do Sistema</h2>
+
+  <button class="botoes-verde" onclick="exportarTudo()">📤 Exportar Backup</button>
+  <button class="botoes-azul" onclick="importarTudo()">📥 Importar Backup</button>
+  <button class="botoes-laranja" onclick="window.location.href='menu.html'">⬅️ Voltar ao Menu</button>
+
+  <footer>Versão 1.0 - Sistema Funcionários</footer>
+</div>
+
+<!-- Firebase integrado -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+  import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js";
+
+  // 🔹 Configuração do seu projeto Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyDH9MG50ynnt4SiXGAFymBH9nXmBqLwTtU",
+    authDomain: "funcionarios-7c778.firebaseapp.com",
+    databaseURL: "https://funcionarios-7c778-default-rtdb.firebaseio.com",
+    projectId: "funcionarios-7c778",
+    storageBucket: "funcionarios-7c778.firebasestorage.app",
+    messagingSenderId: "632364021109",
+    appId: "1:632364021109:web:a5db2bd2c794c4368b4f3c",
+    measurementId: "G-PLP32K6CWZ"
+  };
+
+  // 🔹 Inicializa Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // 🔹 Exportar todos os dados do Firebase
+  async function exportarTudo() {
+    try {
+      const refRoot = ref(db, "/");
+      const snapshot = await get(refRoot);
+      if (!snapshot.exists()) {
+        alert("⚠️ Nenhum dado encontrado no banco.");
+        return;
+      }
+
+      const dados = snapshot.val();
+      const blob = new Blob([JSON.stringify(dados, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "backup_firebase.json";
+      a.click();
+      URL.revokeObjectURL(url);
+
+      alert("✅ Backup exportado com sucesso!");
+    } catch (erro) {
+      alert("❌ Erro ao exportar: " + erro.message);
+    }
+  }
+
+  // 🔹 Importar dados JSON para o Firebase
+  async function importarTudo() {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "application/json";
+
+    input.onchange = async event => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      try {
+        const text = await file.text();
+        const dados = JSON.parse(text);
+
+        if (!confirm("⚠️ Isso substituirá todos os dados atuais no Firebase. Deseja continuar?")) {
+          return;
+        }
+
+        await set(ref(db, "/"), dados);
+        alert("✅ Backup restaurado com sucesso!");
+      } catch (erro) {
+        alert("❌ Erro ao importar: " + erro.message);
+      }
+    };
+
+    input.click();
+  }
+
+  // 🔹 Torna as funções acessíveis globalmente
+  window.exportarTudo = exportarTudo;
+  window.importarTudo = importarTudo;
+</script>
+
+</body>
+</html>
