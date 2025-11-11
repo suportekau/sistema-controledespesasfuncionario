@@ -79,14 +79,46 @@ form input[type=time] { text-transform: none; }
 form input[readonly] { background: #ddd; }
 
 /* Tabela */
-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-th, td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: middle; }
-th { background: #1976d2; color: white; }
-tr:nth-child(even) { background: #f9f9f9; }
-td.actions { text-align: center; }
-td.actions button { background: transparent; border: none; cursor: pointer; font-size: 16px; margin: 0 5px; }
-td.actions button.edit { color: #2196f3; }
-td.actions button.delete { color: #f44336; }
+/* 🔹 Ajustes visuais da tabela de consulta */
+#consultaContainer h2 {
+  text-align: left;         /* título alinhado à esquerda */
+  font-size: 18px;          /* diminui levemente o tamanho */
+  margin-bottom: 15px;
+  color: #333;
+}
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 3px;    /* pequeno espaço entre linhas */
+  font-size: 14px;          /* letras um pouco menores */
+}
+
+th, td {
+  padding: 4px 8px;         /* mais compacto */
+  border: none;
+  text-align: left;
+}
+
+th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+tr {
+  background-color: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* destaque entre linhas */
+  border-radius: 6px;
+}
+
+tr:nth-child(even) {
+  background-color: #fafafa; /* linhas alternadas */
+}
+
+tr:hover {
+  background-color: #e7f3ff; /* destaque ao passar o mouse */
+  transition: background-color 0.2s ease;
+}
 
 #filtroGeral { width: 250px; padding: 6px 8px; margin-right: 10px; text-transform: uppercase; }
 #filtros { margin-bottom: 15px; display:flex; align-items:center; gap:10px; }
