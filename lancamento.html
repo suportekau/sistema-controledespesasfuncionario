@@ -133,7 +133,8 @@ td.actions button.delete { color: #f44336; }
   </div>
   <form id="formLanc">
     <label for="nomeLanc">Nome</label>
-    <input type="text" id="nomeLanc" autocomplete="off" required />
+    <input type="text" id="nomeLanc" list="listaNomes" autocomplete="off" required />
+    <datalist id="listaNomes"></datalist>
 
     <label for="tipoLanc">Tipo</label>
     <select id="tipoLanc">
@@ -192,7 +193,7 @@ let lancamentos = JSON.parse(localStorage.getItem('lancamentos')) || [];
 let registros = JSON.parse(localStorage.getItem('registros')) || []; // nomes do cadastro
 let editando = null;
 
-// Campos
+// === Campos ===
 const inputNome = document.getElementById('nomeLanc');
 const inputTipo = document.getElementById('tipoLanc');
 const inputValor = document.getElementById('valorLanc');
@@ -203,6 +204,7 @@ const filtroNomeInserir = document.getElementById('filtroNomeInserir');
 const filtroLanc = document.getElementById('filtroLanc');
 const btnInserir = document.getElementById('btnInserir');
 const btnSair = document.getElementById('btnSair');
+const datalistNomes = document.getElementById('listaNomes');
 
 // === Funções ===
 function limparFormulario() {
@@ -213,6 +215,15 @@ function limparFormulario() {
   editando = null;
   btnSalvar.textContent = "Salvar";
   inputNome.focus();
+}
+
+function atualizarListaNomes() {
+  datalistNomes.innerHTML = '';
+  registros.forEach(r => {
+    const option = document.createElement('option');
+    option.value = r.nome;
+    datalistNomes.appendChild(option);
+  });
 }
 
 function atualizarTabela(filtro="") {
@@ -322,6 +333,7 @@ btnSair.addEventListener('click', () => {
 });
 
 // === Inicialização ===
+atualizarListaNomes();
 limparFormulario();
 atualizarTabela();
 abrirAba('consulta');
