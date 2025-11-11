@@ -22,16 +22,15 @@
     border-radius: 8px;
     box-shadow: 0 0 15px rgba(0,0,0,0.3);
     width: 320px;
-    position: relative; /* necessário para posicionar o top-left */
+    position: relative;
   }
 
-  /* Nome pequeno no canto superior esquerdo da caixa */
   .top-left {
     position: absolute;
     top: 10px;
     left: 10px;
     font-weight: bold;
-    font-size: 10px; /* tamanho pequeno */
+    font-size: 10px;
     color: #333;
   }
 
@@ -109,46 +108,44 @@
 <body>
 
 <div class="login-box">
-  <div class="top-left">K-Sistemas</div> <!-- Nome no canto superior esquerdo -->
-  
+  <div class="top-left">K-Sistemas</div>
   <h2>Login</h2>
   <div class="mensagem" id="mensagem"></div>
 
   <form id="loginForm">
     <input type="text" id="usuario" placeholder="Usuário" autocomplete="off" required>
-
     <div class="senha-container">
       <input type="password" id="senha" placeholder="Senha" required>
       <button type="button" class="toggle-senha">
         <span class="material-icons" id="icone-olho">visibility</span>
       </button>
     </div>
-
     <button type="submit" class="entrar">Entrar</button>
   </form>
 </div>
 
-<script>
-//const usuario = document.getElementById('usuario');
-//const senha = document.getElementById('senha');
-//const toggleSenha = document.querySelector('.toggle-senha');
-//const iconeOlho = document.getElementById('icone-olho');
-//const form = document.getElementById('loginForm');
-//const mensagem = document.getElementById('mensagem');
+<script type="module">
+// ===== Variáveis =====
+const usuario = document.getElementById('usuario');
+const senha = document.getElementById('senha');
+const toggleSenha = document.querySelector('.toggle-senha');
+const iconeOlho = document.getElementById('icone-olho');
+const form = document.getElementById('loginForm');
+const mensagem = document.getElementById('mensagem');
 
-// Foco automático no usuário
+// ===== Foco automático =====
 window.addEventListener('load', () => usuario.focus());
 
-// Letras maiúsculas
+// ===== Letras maiúsculas =====
 [usuario, senha].forEach(input => {
   input.addEventListener('input', () => input.value = input.value.toUpperCase());
 });
 
-// Enter muda de campo ou envia
+// ===== Enter muda de campo ou envia =====
 usuario.addEventListener('keydown', e => { if(e.key==='Enter'){ e.preventDefault(); senha.focus(); } });
 senha.addEventListener('keydown', e => { if(e.key==='Enter'){ e.preventDefault(); form.requestSubmit(); } });
 
-// Mostrar / ocultar senha
+// ===== Mostrar / ocultar senha =====
 toggleSenha.addEventListener('click', () => {
   if(senha.type === 'password') {
     senha.type = 'text';
@@ -159,17 +156,17 @@ toggleSenha.addEventListener('click', () => {
   }
 });
 
-// Função para mostrar mensagem temporária
+// ===== Função para mostrar mensagem =====
 function mostrarMensagem(texto, tipo) {
   mensagem.textContent = texto;
   mensagem.className = `mensagem ${tipo}`;
   setTimeout(() => {
     mensagem.textContent = '';
     mensagem.className = 'mensagem';
-  }, 2000); // 2 segundos
+  }, 2000);
 }
 
-// Login fictício
+// ===== Login fictício =====
 form.addEventListener('submit', e => {
   e.preventDefault();
   if(usuario.value.trim() === "ADMIN" && senha.value.trim() === "1234") {
@@ -181,52 +178,14 @@ form.addEventListener('submit', e => {
     usuario.focus();
   }
 });
-</script>
 
-<script type="module">
+// ===== Login Firebase =====
 import { auth } from "./firebase.js";
-import {
-  signInWithEmailAndPassword,
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-const usuario = document.getElementById('usuario');
-const senha = document.getElementById('senha');
-const toggleSenha = document.querySelector('.toggle-senha');
-const iconeOlho = document.getElementById('icone-olho');
-const form = document.getElementById('loginForm');
-const mensagem = document.getElementById('mensagem');
-
-// Foco automático no usuário
-window.addEventListener('load', () => usuario.focus());
-
-// Letras maiúsculas
-usuario.addEventListener('input', () => usuario.value = usuario.value.toUpperCase());
-
-// Mostrar / ocultar senha
-toggleSenha.addEventListener('click', () => {
-  if(senha.type === 'password') {
-    senha.type = 'text';
-    iconeOlho.textContent = 'visibility_off';
-  } else {
-    senha.type = 'password';
-    iconeOlho.textContent = 'visibility';
-  }
-});
-
-// Mensagem temporária
-function mostrarMensagem(texto, tipo) {
-  mensagem.textContent = texto;
-  mensagem.className = `mensagem ${tipo}`;
-  setTimeout(() => {
-    mensagem.textContent = '';
-    mensagem.className = 'mensagem';
-  }, 2000);
-}
-
-// Login com Firebase
 form.addEventListener('submit', async e => {
   e.preventDefault();
-  const email = usuario.value.trim() + "@empresa.com"; // exemplo se quiser usar login tipo "ADMIN"
+  const email = usuario.value.trim() + "@empresa.com";
   const password = senha.value.trim();
 
   try {
@@ -240,7 +199,6 @@ form.addEventListener('submit', async e => {
   }
 });
 </script>
-
 
 </body>
 </html>
