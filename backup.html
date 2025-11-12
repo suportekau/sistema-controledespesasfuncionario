@@ -1,258 +1,38 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Backup Firebase - Sistema Funcionários</title>
+// 🔹 Exportar Firebase com logs e segurança
+async function exportarFirebase(event) {
+  const botao = event.target;
+  botao.disabled = true;
+  botao.textContent = "⏳ Exportando...";
 
-<style>
-body {
-  font-family: Arial, sans-serif;
-  background: #f0f0f0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  margin: 0;
-}
-#menuBkp {
-  width: 340px;
-  text-align: center;
-  background: #ffffff;
-  padding: 25px;
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
-  position: relative;
-}
-h2 {
-  margin-top: 15px;
-  margin-bottom: 25px;
-  color: #333;
-}
-button {
-  width: 100%;
-  padding: 12px;
-  margin: 8px 0;
-  border: none;
-  border-radius: 8px;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-  transition: transform 0.2s ease, background-color 0.3s ease;
-}
-.botoes-verde { background-color: #4CAF50; }
-.botoes-verde:hover { background-color: #45a049; transform: scale(1.03); }
+  try {
+    console.log("🟡 Conectando ao Firebase...");
+    const rootRef = ref(db, "/");
+    const snapshot = await get(rootRef);
+    console.log("🟢 Snapshot recebido:", snapshot.exists());
 
-.botoes-azul { background-color: #2196F3; }
-.botoes-azul:hover { background-color: #0b7dda; transform: scale(1.03); }
-
-.botoes-laranja { background-color: #FF9800; }
-.botoes-laranja:hover { background-color: #e68a00; transform: scale(1.03); }
-
-footer {
-  margin-top: 15px;
-  font-size: 13px;
-  color: #666;
-}
-
-/* 🔹 Toast interno acima do título */
-.toast-container {
-  position: absolute;
-  top: 5px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 99;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  width: 100%;
-}
-.toast {
-  background-color: #323232;
-  color: #fff;
-  padding: 10px 16px;
-  border-radius: 8px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-  opacity: 0;
-  transform: translateY(-10px);
-  animation: fadeInOut 3.5s ease forwards;
-  min-width: 220px;
-  font-size: 14px;
-}
-.toast.success { background-color: #4CAF50; }
-.toast.error { background-color: #f44336; }
-.toast.warn { background-color: #FF9800; }
-
-@keyframes fadeInOut {
-  0% { opacity: 0; transform: translateY(-10px); }
-  10% { opacity: 1; transform: translateY(0); }
-  90% { opacity: 1; transform: translateY(0); }
-  100% { opacity: 0; transform: translateY(-10px); }
-}
-
-/* 🔹 Confirmação flutuante dentro do bloco */
-.confirm-box {
-  background-color: #FF9800;
-  color: white;
-  padding: 12px 18px;
-  border-radius: 10px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.3);
-  position: absolute;
-  top: 5px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  z-index: 100;
-}
-.confirm-buttons {
-  display: flex;
-  gap: 12px;
-  margin-top: 8px;
-}
-.confirm-buttons button {
-  padding: 5px 12px;
-  border: none;
-  border-radius: 6px;
-  color: white;
-  cursor: pointer;
-}
-.confirm-yes { background: #4CAF50; }
-.confirm-no { background: #f44336; }
-</style>
-</head>
-<body>
-
-<div id="menuBkp">
-  <!-- 🔹 Mensagens aparecem aqui -->
-  <div class="toast-container" id="toastContainer"></div>
-
-  <h2>Backup Firebase</h2>
-
-  <button class="botoes-verde" onclick="exportarFirebase(event)">📤 Exportar Backup</button>
-  <button class="botoes-azul" onclick="importarFirebase()">📥 Importar Backup</button>
-  <button class="botoes-laranja" onclick="window.location.href='menu.html'">⬅️ Voltar ao Menu</button>
-
-  <footer>Versão 1.0 - Sistema Funcionários</footer>
-</div>
-
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
-  import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAcKFGAxlaSR1oRCHdZQrdK50VH_tb18w0",
-  authDomain: "controledegastos-b32ac.firebaseapp.com",
-  databaseURL: "https://controledegastos-b32ac-default-rtdb.firebaseio.com",
-  projectId: "controledegastos-b32ac",
-  storageBucket: "controledegastos-b32ac.firebasestorage.app",
-  messagingSenderId: "528495650715",
-  appId: "1:528495650715:web:523fb3c214188aa0a8233e",
-  measurementId: "G-CJHNJZZX8X"
-};
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-
-  // 🔹 Toast acima do título
-  function toast(msg, tipo = "info", tempo = 3500) {
-    const container = document.getElementById("toastContainer");
-    const div = document.createElement("div");
-    div.className = `toast ${tipo}`;
-    div.textContent = msg;
-    container.appendChild(div);
-    setTimeout(() => div.remove(), tempo);
-  }
-
-  // 🔹 Confirmação interna (no mesmo local)
-  function confirmacaoFlutuante(msg) {
-    return new Promise(resolve => {
-      const container = document.getElementById("menuBkp");
-      const box = document.createElement("div");
-      box.className = "confirm-box";
-      box.innerHTML = `
-        <span>${msg}</span>
-        <div class="confirm-buttons">
-          <button class="confirm-yes">Sim</button>
-          <button class="confirm-no">Não</button>
-        </div>
-      `;
-      container.appendChild(box);
-
-      box.querySelector(".confirm-yes").onclick = () => { box.remove(); resolve(true); };
-      box.querySelector(".confirm-no").onclick = () => { box.remove(); resolve(false); };
-
-      setTimeout(() => { if (box.parentNode) box.remove(); resolve(false); }, 8000);
-    });
-  }
-
-  // 🔹 Exportar Firebase
-  async function exportarFirebase(event) {
-    const botao = event.target;
-    botao.disabled = true;
-    botao.textContent = "⏳ Exportando...";
-
-    try {
-      const snapshot = await get(ref(db, "/"));
-      if (!snapshot.exists()) {
-        toast("⚠️ Nenhum dado encontrado no Firebase.", "warn");
-        return;
-      }
-
-      const dados = snapshot.val();
-      const dataAgora = new Date().toISOString().replace(/[:.]/g, "-");
-      const blob = new Blob([JSON.stringify(dados, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `backup_firebase_${dataAgora}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-
-      toast("✅ Backup exportado com sucesso!", "success");
-    } catch (erro) {
-      toast("❌ Erro ao exportar: " + erro.message, "error");
-    } finally {
-      botao.disabled = false;
-      botao.textContent = "📤 Exportar Backup";
+    if (!snapshot.exists()) {
+      toast("⚠️ Nenhum dado encontrado no Firebase.", "warn");
+      return;
     }
+
+    const dados = snapshot.val();
+    console.log("📦 Dados:", dados);
+
+    const dataAgora = new Date().toISOString().replace(/[:.]/g, "-");
+    const blob = new Blob([JSON.stringify(dados, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `backup_firebase_${dataAgora}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    toast("✅ Backup exportado com sucesso!", "success");
+  } catch (erro) {
+    console.error("❌ Erro ao exportar:", erro);
+    toast("❌ Erro ao exportar: " + erro.message, "error");
+  } finally {
+    botao.disabled = false;
+    botao.textContent = "📤 Exportar Backup";
   }
-
-  // 🔹 Importar Firebase
-  async function importarFirebase() {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "application/json";
-
-    input.onchange = async e => {
-      const arquivo = e.target.files[0];
-      if (!arquivo) return;
-
-      const confirmar = await confirmacaoFlutuante("⚠️ Substituir todos os dados?");
-      if (!confirmar) return;
-
-      try {
-        const texto = await arquivo.text();
-        const dados = JSON.parse(texto);
-
-        if (typeof dados !== "object" || Array.isArray(dados)) {
-          toast("❌ Arquivo inválido de backup!", "error");
-          return;
-        }
-
-        await set(ref(db, "/"), dados);
-        toast("✅ Backup restaurado com sucesso!", "success");
-      } catch (erro) {
-        toast("❌ Erro ao importar: " + erro.message, "error");
-      }
-    };
-
-    input.click();
-  }
-
-  window.exportarFirebase = exportarFirebase;
-  window.importarFirebase = importarFirebase;
-</script>
-</body>
-</html>
+}
