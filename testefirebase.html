@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Teste Firebase</title>
+</head>
+<body>
+<h2>🔍 Teste de Conexão com Firebase</h2>
+<button id="btnTestar">Testar Conexão</button>
+<pre id="saida"></pre>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js";
+
+// ⚙️ Configuração (a mesma do seu projeto)
+const firebaseConfig = {
+  apiKey: "AIzaSyDH9MG50ynnt4SiXGAFymBH9nXmBqLwTtU",
+  authDomain: "funcionarios-7c778.firebaseapp.com",
+  databaseURL: "https://funcionarios-7c778-default-rtdb.firebaseio.com",
+  projectId: "funcionarios-7c778",
+  storageBucket: "funcionarios-7c778.firebasestorage.app",
+  messagingSenderId: "632364021109",
+  appId: "1:632364021109:web:a5db2bd2c794c4368b4f3c"
+};
+
+// 🚀 Inicializa
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// 🔹 Botão de teste
+document.getElementById("btnTestar").addEventListener("click", async () => {
+  const saida = document.getElementById("saida");
+  saida.textContent = "⏳ Testando conexão...";
+
+  try {
+    // Adiciona um dado teste no Firebase
+    const refTeste = ref(db, "testes");
+    const novo = push(refTeste);
+    await set(novo, { mensagem: "Conexão bem-sucedida!", data: new Date().toISOString() });
+
+    // Lê os dados de volta
+    onValue(refTeste, (snapshot) => {
+      const dados = snapshot.val();
+      saida.textContent = "✅ Conectado ao Firebase!\n\nDados lidos:\n" + JSON.stringify(dados, null, 2);
+    });
+  } catch (erro) {
+    saida.textContent = "❌ Erro ao conectar: " + erro.message;
+  }
+});
+</script>
+</body>
+</html>
